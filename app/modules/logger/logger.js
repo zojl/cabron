@@ -23,17 +23,25 @@ module.exports = (client, Discord) => {
 	});
 
 	client.on('messageDelete', async (message) => {
-		let logs = await message.guild.fetchAuditLogs({type: 72});
-		let entry = logs.entries.first();
-		let embed = new Discord.RichEmbed()
+		if (!message.guild) return;
+		const logs = await message.guild.fetchAuditLogs({
+			limit: 1,
+			type: 'MESSAGE_DELETE',
+		});
+		const entry = logs.entries.first();
+		const isCorrectEntry = typeof(entry) != 'undefined' && entry.target.id === message.author.id;
+		const avatar = isCorrectEntry ? entry.executor.avatarURL : message.author.avatarURL;
+		const userTag = isCorrectEntry ? entry.executor.tag : 'неизвестно или автором';
+		const executorId = isCorrectEntry ? entry.executor.id : '-----';
+		const embed = new Discord.RichEmbed()
 			.setColor('#ff4400')
-			.setAuthor('Сообщение удалено', entry.executor.avatarURL)
-			.setTitle(`пользователем ${entry.executor.tag}`)
+			.setAuthor('Сообщение удалено', avatar)
+			.setTitle(`пользователем ${userTag}`)
 			.setDescription(`в канале ${message.channel}`)
 			.addField('Автор сообщения', message.author)
 			.addField('Текст сообщения', message.content)
 			.setTimestamp()
-			.setFooter('Executor ID: ' + entry.executor.id);
+			.setFooter('Executor ID: ' + executorId);
 		client.channels.get(process.env.LOG_CHANNEL).send(embed);
 	});
 
