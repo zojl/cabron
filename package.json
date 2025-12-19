@@ -13,6 +13,6 @@
     "discord.js": "^11.4.2",
     "dotenv": "^8.1.0",
     "sequelize": "^5.22.5",
-    "sqlite3": "^4.1.0"
+    "sqlite3": "^4.2.0"
   }
 }
